@@ -36,18 +36,38 @@ const Home = () => {
                 })
             }}>
                 <Image source={{uri: `https://image.tmdb.org/t/p/w185${item.poster_path}`}} style={styles.carouselImage} />
-                <Text style={styles.carouselTitle}>{item.original_title}</Text>
                 <TouchableOpacity style={styles.carouselIcon} onPress={() => addToFav(item)}><MaterialIcons name='library-add' size={30} color='white' /></TouchableOpacity>
             </TouchableOpacity>
-            {movieSearch.length !== 0 && <View style={{width:Dimensions.get('window').width - 14, justifyContent: 'space-between',marginTop: 16}}>
+            <View style={{width:Dimensions.get('window').width - 14,marginTop: 16}}>
                 <Text style={styles.name}>{item.original_title}</Text>
                 <Text style={styles.stat}>{item.release_date}</Text>
                 <Text style={styles.stat}>{item.vote_average}</Text>
                 
-            </View>}
+            </View>
         </View>
     )
 }
+
+
+    const renderFavItem = ({item, index}) => {
+        var item1 = JSON.parse(item[1])
+        console.log('====================')
+        console.log(item1.item)
+        console.log('====================')
+        return(
+            <View>
+                <TouchableOpacity>
+                    <Image source={{uri: `https://image.tmdb.org/t/p/w185${item1.item.poster_path}`}} style={styles.carouselImage} />
+                </TouchableOpacity>
+                <View style={{width:Dimensions.get('window').width - 14, justifyContent: 'space-between',marginTop: 16}}>
+                    <Text style={styles.name}>{item1.item.original_title}</Text>
+                    <Text style={styles.stat}>{item1.item.release_date}</Text>
+                    <Text style={styles.stat}>{item1.item.vote_average}</Text>
+                    
+                </View>
+            </View>
+        )
+    }
     const addToFav = async (item) => {
         // console.log(typeof(JSON.stringify(item.original_title)))
         try {
@@ -80,26 +100,22 @@ const Home = () => {
             setPopularMoviesList(result.data.results)
         })
 
-        // const fetchAllItems = async () => {
-        //     try {
-        //         const keys = await AsyncStorage.getAllKeys()
-        //         const items = await AsyncStorage.multiGet(keys)
-        //         console.log(items,'iteeeeeeeeeeeeeeeeeeems')
-        //         return items
-        //     } catch (error) {
-        //         console.log(error, "problemo")
-        //     }
-        // }
-        // fetchAllItems()
         AsyncStorage.getAllKeys()
     .then((keys)=> AsyncStorage.multiGet(keys)
-                    .then((data) => console.log(data,'data here')));
+                    .then((data) => {
+                        // console.log(data,'data here')
+                        setDataStorage(data)
+                    }));
       },[]);
 
+      useEffect(() => {
+        console.log('run')
+      },[dataStorage])
+
     return (
-        <ScrollView>
+        <ScrollView >
             <View style={styles.container}>
-            <View style={{...StyleSheet.absoluteFill, backgroundColor: '#000'}}>
+            <View style={{...StyleSheet.absoluteFillObject, backgroundColor: '#000'}}>
                 <ImageBackground 
                 style={styles.background}
                 source={background}
@@ -115,9 +131,9 @@ const Home = () => {
                     />
                     <Feather name='search' color='#666' size={22} style={styles.searchBoxIcon} />
                 </View>
-                
+                <View style={{flex: 1,overflow: "visible", height:800}}>
                 <Text style={styles.topMoviesHeader}>{movieSearch.length === 0 ? 'Top - Movies':`Results for: ${text}`}</Text> 
-                <Carousel style={styles.carousel}
+                <Carousel 
                 data={movieSearch.length === 0 ? popularMoviesList:movieSearch }
                 renderItem={renderItem}
                 itemWidth={200}
@@ -126,7 +142,20 @@ const Home = () => {
                 separatorWidth={0}
                 inactiveOpacity={0.4}
                 />
-                <Text style={styles.carouselTitle}>Favourites</Text>
+                </View>
+                <View style={styles.carousel}>
+                <Text style={styles.topMoviesHeader}>Favourites</Text>
+                {dataStorage !== null && <Carousel 
+                data={dataStorage }
+                renderItem={renderFavItem}
+                itemWidth={200}
+                ref={carouselRef}
+                containerWidth={width - 20} 
+                separatorWidth={0}
+                inactiveOpacity={0.4}
+                />}
+                </View>
+                
                 </ImageBackground>
             </View>
             </View>
@@ -138,7 +167,7 @@ const styles = StyleSheet.create({
     container : {
         flex: 1,
         backgroundColor : '#000',
-        height : Dimensions.get('window').height,
+        height : Dimensions.get('window').height * 3/2.2,
         paddingHorizontal: 14,
         marginTop: 50
     },
@@ -146,7 +175,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         elevation: 10,
         borderRadius: 4,
-        marginVertical: 80,
+        marginTop: 60,
+        marginBottom: 20,
         width: (Dimensions.get('window').width) *6/7,
         flexDirection: 'row',
         alignSelf: 'center'
@@ -166,7 +196,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: '700',
         marginLeft: 30,
-        marginVertical: -40
+        // marginBottom: 10
     },
     background: {
         flex: 1,
@@ -175,11 +205,13 @@ const styles = StyleSheet.create({
     },
     carousel : {
         flex: 1,
-        overflow: "visible"
+        overflow: "visible",
+        // marginTop: 250,
+        // backgroundColor: "white",
     },
     carouselImage : {
         width: 200,
-        height: 320,
+        height: 250,
         borderRadius:10,
         alignSelf: 'center',
         backgroundColor: 'rgba(0,0,0,0.9)'
