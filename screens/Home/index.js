@@ -8,26 +8,34 @@ import axios from 'axios'
 
 const {width, height} = Dimensions.get('window')
 
-// const renderItem = ({item, index}) => {
-//     return(
-//         <View>
-//             <TouchableOpacity>
-//                 <Image source={{uri: item.name}}
-//             </TouchableOpacity>
-//         </View>
-//     )
-// }
+
 
 
 const Home = () => {
-    const [moviesList, setMoviesList] = useState(null)
+    const [popularMoviesList, setPopularMoviesList] = useState(null)
     const carouselRef = useRef(null)
-    const data = axios.get('https://api.themoviedb.org/3/movie/550?api_key=d684550d631cad69733c812672083206')
-    .then(result => {
-        console.log(result.results)
-        // setMoviesList(result)
-        // console.log(moviesList)
-    })
+    useEffect(() => {
+        const data = axios.get('https://api.themoviedb.org/3/movie/popular?api_key=d684550d631cad69733c812672083206&language=en-US&page=1')
+        .then(result => {
+            console.log(result.data.results)
+            setPopularMoviesList(result.data.results)
+            console.log(popularMoviesList,'results are here')
+        })
+      },[]);
+
+      const renderItem = ({item, index}) => {
+          console.log(`https://image.tmdb.org/t/p/w185${item.poster_path}`)
+    return(
+        <View>
+            <TouchableOpacity>
+                <Image source={{uri: `https://image.tmdb.org/t/p/w185${item.poster_path}`}} style={styles.carouselImage} />
+                <Text style={styles.carouselTitle}>{item.original_title}</Text>
+                <MaterialIcons name='library-add' size={30} color='white' style={styles.carouselIcon}/>
+            </TouchableOpacity>
+        </View>
+    )
+}
+    
     
 
     return (
@@ -48,11 +56,14 @@ const Home = () => {
                     <Feather name='search' color='#666' size={22} style={styles.searchBoxIcon} />
                 </View>
                 <Text style={styles.topMoviesHeader}>Top - Movies</Text>
-                {/* <Carousel style={styles.carousel}
-                data={}
+                <Carousel style={styles.carousel}
+                data={popularMoviesList}
                 renderItem={renderItem}
                 itemWidth={200}
-                /> */}
+                ref={carouselRef}
+                containerWidth={width - 20} 
+                separatorWidth={0}
+                />
                 </ImageBackground>
             </View>
             </View>
@@ -98,6 +109,31 @@ const styles = StyleSheet.create({
         flex: 1,
         resizeMode: "cover",
         // justifyContent: "center"
+    },
+    carousel : {
+        flex: 1,
+        overflow: "visible"
+    },
+    carouselImage : {
+        width: 200,
+        height: 320,
+        borderRadius:10,
+        alignSelf: 'center',
+        backgroundColor: 'rgba(0,0,0,0.9)'
+    },
+    carouselTitle: {
+        padding: 14,
+        color: 'white',
+        bottom:  10,
+        position: 'absolute',
+        bottom: 10,
+        left: 2,
+        fontWeight: 'bold'
+    },
+    carouselIcon: {
+        position: 'absolute',
+        top:15,
+        right:15,
     },
 })
 
