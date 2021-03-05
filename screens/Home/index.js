@@ -12,22 +12,29 @@ const {width, height} = Dimensions.get('window')
 
 
 const Home = () => {
+    const [background, setBackground] = useState(
+        require('../../assets/bg.jpg')
+    )
     const [popularMoviesList, setPopularMoviesList] = useState(null)
+    const [movieSearch, setMovieSearch] = useState('')
+    const [text, setText] = useState('');
+    const [showSearch, setShowSearch] = useState(false)
     const carouselRef = useRef(null)
     useEffect(() => {
         const data = axios.get('https://api.themoviedb.org/3/movie/popular?api_key=d684550d631cad69733c812672083206&language=en-US&page=1')
         .then(result => {
-            console.log(result.data.results)
             setPopularMoviesList(result.data.results)
-            console.log(popularMoviesList,'results are here')
         })
       },[]);
-
       const renderItem = ({item, index}) => {
-          console.log(`https://image.tmdb.org/t/p/w185${item.poster_path}`)
     return(
         <View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+                carouselRef.current.scrollToIndex(index)
+                setBackground({
+                    uri: `https://image.tmdb.org/t/p/w185${item.poster_path}`
+                })
+            }}>
                 <Image source={{uri: `https://image.tmdb.org/t/p/w185${item.poster_path}`}} style={styles.carouselImage} />
                 <Text style={styles.carouselTitle}>{item.original_title}</Text>
                 <MaterialIcons name='library-add' size={30} color='white' style={styles.carouselIcon}/>
@@ -36,7 +43,21 @@ const Home = () => {
     )
 }
     
-    
+    const handleSearch = text => {
+        
+        setText(text)
+        console.log(text)
+        axios.get(`https://api.themoviedb.org/3/search/movie?query=${text}&api_key=d684550d631cad69733c812672083206`)
+        .then(result => {
+            // console.log(result.data.results,'resuuuuuuuuuuuults')
+            setMovieSearch(result.data.results)
+        })
+        .catch(err => console.log(err))
+        // setShowSearch(true)
+        if(text.length === 0) {
+            setMovieSearch('')
+        }
+    }
 
     return (
         <ScrollView>
@@ -44,7 +65,7 @@ const Home = () => {
             <View style={{...StyleSheet.absoluteFill, backgroundColor: '#000'}}>
                 <ImageBackground 
                 style={styles.background}
-                source={require('../../assets/bg.jpg')}
+                source={background}
                 blurRadius={2}
                 >
                 <View style={styles.searchBox}>
@@ -52,12 +73,15 @@ const Home = () => {
                     placeholder="Search For Movies..."
                     placeholderTextColor='#666'
                     style={styles.search}
+                    defaultValue={text}
+                    onChangeText={handleSearch}
                     />
                     <Feather name='search' color='#666' size={22} style={styles.searchBoxIcon} />
                 </View>
-                <Text style={styles.topMoviesHeader}>Top - Movies</Text>
+                
+                <Text style={styles.topMoviesHeader}>Top - Movies</Text> 
                 <Carousel style={styles.carousel}
-                data={popularMoviesList}
+                data={movieSearch.length === 0 ? popularMoviesList:movieSearch }
                 renderItem={renderItem}
                 itemWidth={200}
                 ref={carouselRef}
@@ -124,9 +148,8 @@ const styles = StyleSheet.create({
     carouselTitle: {
         padding: 14,
         color: 'white',
-        bottom:  10,
+        bottom:  0,
         position: 'absolute',
-        bottom: 10,
         left: 2,
         fontWeight: 'bold'
     },
