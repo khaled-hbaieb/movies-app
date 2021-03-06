@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {Text, View, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions, TextInput, ImageBackground, Pressable} from 'react-native'
 import Carousel from 'react-native-anchor-carousel'
-import {fontAwesome5, Feather, MaterialIcons} from '@expo/vector-icons'
+import {Ionicons , Feather, MaterialIcons} from '@expo/vector-icons'
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -19,7 +19,8 @@ const Home = () => {
     const [popularMoviesList, setPopularMoviesList] = useState(null)
     const [movieSearch, setMovieSearch] = useState('')
     const [text, setText] = useState('');
-    const [dataStorage, setDataStorage] = useState(null)
+    const [dataStorage, setDataStorage] = useState([])
+    const [update, setUpdate] = useState(false)
     const carouselRef = useRef(null)
     
 
@@ -38,7 +39,7 @@ const Home = () => {
                 <Image source={{uri: `https://image.tmdb.org/t/p/w185${item.poster_path}`}} style={styles.carouselImage} />
                 <TouchableOpacity style={styles.carouselIcon} onPress={() => addToFav(item)}><MaterialIcons name='library-add' size={30} color='white' /></TouchableOpacity>
             </TouchableOpacity>
-            <View style={{width:Dimensions.get('window').width - 14,marginTop: 16}}>
+            <View style={{width:Dimensions.get('window').width /2,height: Dimensions.get('window').width /3,marginTop: 16}}>
                 <Text style={styles.name}>{item.original_title}</Text>
                 <Text style={styles.stat}>{item.release_date}</Text>
                 <Text style={styles.stat}>{item.vote_average}</Text>
@@ -51,13 +52,14 @@ const Home = () => {
 
     const renderFavItem = ({item, index}) => {
         var item1 = JSON.parse(item[1])
-        console.log('====================')
-        console.log(item1.item)
-        console.log('====================')
+        // console.log('====================')
+        // console.log(item1.item)
+        // console.log('====================')
         return(
             <View>
                 <TouchableOpacity>
                     <Image source={{uri: `https://image.tmdb.org/t/p/w185${item1.item.poster_path}`}} style={styles.carouselImage} />
+                    <TouchableOpacity style={styles.carouselIcon2} onPress={() => removeFav(item)}><Ionicons name="ios-remove-circle" size={30} color="white" /></TouchableOpacity>
                 </TouchableOpacity>
                 <View style={{width:Dimensions.get('window').width - 14, justifyContent: 'space-between',marginTop: 16}}>
                     <Text style={styles.name}>{item1.item.original_title}</Text>
@@ -73,10 +75,23 @@ const Home = () => {
         try {
             // await AsyncStorage.setItem(`${item.original_title}`, {item})
             await AsyncStorage.setItem(JSON.stringify(item.original_title), JSON.stringify({item}))
+            setUpdate(!update)
           } catch (e) {
-            console.log(e)
+            console.log('addToFav',e)
           }
           
+    }
+
+    const removeFav = async (key) => {
+        console.log(key[0])
+        try {
+            await AsyncStorage.removeItem(key[0]);
+            setUpdate(!update)
+            return true;
+        }
+        catch(exception) {
+            return false;
+        }
     }
     const handleSearch = text => {
         
@@ -94,23 +109,31 @@ const Home = () => {
         }
     }
 
-    useEffect(() => {
-        const data = axios.get('https://api.themoviedb.org/3/movie/popular?api_key=d684550d631cad69733c812672083206&language=en-US&page=1')
-        .then(result => {
-            setPopularMoviesList(result.data.results)
-        })
-
+    const getAllItems = () => {
         AsyncStorage.getAllKeys()
     .then((keys)=> AsyncStorage.multiGet(keys)
                     .then((data) => {
                         // console.log(data,'data here')
                         setDataStorage(data)
                     }));
+    }
+
+    useEffect(() => {
+        const data = axios.get('https://api.themoviedb.org/3/movie/popular?api_key=d684550d631cad69733c812672083206&language=en-US&page=1')
+        .then(result => {
+            setPopularMoviesList(result.data.results)
+        })
+        getAllItems()
+        console.log('effect1 tekhdem', dataStorage)
+        
       },[]);
 
       useEffect(() => {
-        console.log('run')
-      },[dataStorage])
+          return () => {
+            getAllItems()
+            console.log(dataStorage,'run')
+          }
+      },[update])
 
     return (
         <ScrollView >
@@ -141,11 +164,14 @@ const Home = () => {
                 containerWidth={width - 20} 
                 separatorWidth={0}
                 inactiveOpacity={0.4}
+                // initialIndex={'0'}
                 />
                 </View>
                 <View style={styles.carousel}>
-                <Text style={styles.topMoviesHeader}>Favourites</Text>
-                {dataStorage !== null && <Carousel 
+                {dataStorage.length === 0 ? <Text style={styles.topMoviesHeader}>Add To Favourites</Text> : <Text style={styles.topMoviesHeader}>Favourites</Text>}
+                
+                {dataStorage.length > 0 && <Text style={styles.topMoviesHeader}>Favourites</Text>
+                && <Carousel 
                 data={dataStorage }
                 renderItem={renderFavItem}
                 itemWidth={200}
@@ -169,7 +195,8 @@ const styles = StyleSheet.create({
         backgroundColor : '#000',
         height : Dimensions.get('window').height * 3/2.2,
         paddingHorizontal: 14,
-        marginTop: 50
+        marginTop: 50,
+        // width: '100%'
     },
     searchBox: {
         backgroundColor: '#fff',
@@ -229,15 +256,20 @@ const styles = StyleSheet.create({
         top:15,
         right:15,
     },
+    carouselIcon2: {
+        position: 'absolute',
+        top:10,
+        right:10,
+    },
     name: {
-        paddingLeft: 14,
+        paddingLeft: 7,
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 22,
+        fontSize: 18,
         marginBottom: 6,
     },
     stat: {
-        paddingLeft: 14,
+        paddingLeft: 12,
         color: 'white',
         fontWeight: 'bold',
         fontSize: 14, 
