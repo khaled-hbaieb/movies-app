@@ -100,9 +100,11 @@ const Home = () => {
               `Check this awesome movie:\nhttps://image.tmdb.org/t/p/w185${item.poster_path}`
             })
           } catch (error) {
-            alert(error.message);
+            // alert(error.message);
           }
           try {
+              let data = JSON.parse(item[1])
+              console.log(data,'faaaaaaaaaav')
             const result = await Share.share({
               message:
               `Check this awesome movie:\nhttps://image.tmdb.org/t/p/w185${data.item.poster_path}`
