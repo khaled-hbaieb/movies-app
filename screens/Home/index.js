@@ -1,9 +1,14 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {Text, View, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions, TextInput, ImageBackground, Pressable} from 'react-native'
 import Carousel from 'react-native-anchor-carousel'
-import {Ionicons , Feather, MaterialIcons} from '@expo/vector-icons'
+import {Ionicons , Feather, MaterialIcons,Fontisto } from '@expo/vector-icons'
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// import Share from 'react-native-share';
+import * as Sharing from 'expo-sharing';
+import * as  FileSystem  from 'expo-file-system';
+import Share from 'react-native-share';
+
 
 
 
@@ -21,6 +26,7 @@ const Home = () => {
     const [text, setText] = useState('');
     const [dataStorage, setDataStorage] = useState([])
     const [update, setUpdate] = useState(false)
+    const [selectedImage, setSelectedImage] = useState(null);
     const carouselRef = useRef(null)
     
 
@@ -37,7 +43,8 @@ const Home = () => {
                 })
             }}>
                 <Image source={{uri: `https://image.tmdb.org/t/p/w185${item.poster_path}`}} style={styles.carouselImage} />
-                <TouchableOpacity style={styles.carouselIcon} onPress={() => addToFav(item)}><MaterialIcons name='library-add' size={30} color='white' /></TouchableOpacity>
+                <TouchableOpacity style={styles.carouselIcon} onPress={() => shareItem(item)}><Fontisto name="share-a" size={24} color="white" /></TouchableOpacity>
+                <TouchableOpacity style={styles.carouselIconShare} onPress={() => addToFav(item)}><MaterialIcons name='library-add' size={30} color='white' /></TouchableOpacity>
             </TouchableOpacity>
             <View style={{width:Dimensions.get('window').width /2,height: Dimensions.get('window').width /3,marginTop: 16}}>
                 <Text style={styles.name}>{item.original_title}</Text>
@@ -80,6 +87,20 @@ const Home = () => {
             console.log('addToFav',e)
           }
           
+    }
+
+    
+
+    const shareItem =  (item) => {
+        setSelectedImage({ localUri: `https://image.tmdb.org/t/p/w185${item.poster_path}` });
+        Share.open(item)
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((err) => {
+    err && console.log(err);
+  });
+        
     }
 
     const removeFav = async (key) => {
@@ -255,6 +276,11 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top:15,
         right:15,
+    },
+    carouselIconShare : {
+        position: 'absolute',
+        top:15,
+        left:15,
     },
     carouselIcon2: {
         position: 'absolute',
