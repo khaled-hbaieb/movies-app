@@ -1,13 +1,14 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {Text, View, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions, TextInput, ImageBackground, Pressable} from 'react-native'
+import {Text, View, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions, TextInput, ImageBackground,Share} from 'react-native'
 import Carousel from 'react-native-anchor-carousel'
 import {Ionicons , Feather, MaterialIcons,Fontisto } from '@expo/vector-icons'
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import Share from 'react-native-share';
-import * as Sharing from 'expo-sharing';
-import * as  FileSystem  from 'expo-file-system';
-import Share from 'react-native-share';
+
+
+
+
+
 
 
 
@@ -66,7 +67,8 @@ const Home = () => {
             <View>
                 <TouchableOpacity>
                     <Image source={{uri: `https://image.tmdb.org/t/p/w185${item1.item.poster_path}`}} style={styles.carouselImage} />
-                    <TouchableOpacity style={styles.carouselIcon2} onPress={() => removeFav(item)}><Ionicons name="ios-remove-circle" size={30} color="white" /></TouchableOpacity>
+                    <TouchableOpacity style={styles.carouselIcon} onPress={() => shareItem(item)}><Fontisto name="share-a" size={24} color="white" /></TouchableOpacity>
+                    <TouchableOpacity style={styles.carouselIconShare} onPress={() => removeFav(item)}><Ionicons name="ios-remove-circle" size={30} color="white" /></TouchableOpacity>
                 </TouchableOpacity>
                 <View style={{width:Dimensions.get('window').width - 14, justifyContent: 'space-between',marginTop: 16}}>
                     <Text style={styles.name}>{item1.item.original_title}</Text>
@@ -91,15 +93,24 @@ const Home = () => {
 
     
 
-    const shareItem =  (item) => {
-        setSelectedImage({ localUri: `https://image.tmdb.org/t/p/w185${item.poster_path}` });
-        Share.open(item)
-  .then((res) => {
-    console.log(res);
-  })
-  .catch((err) => {
-    err && console.log(err);
-  });
+    const shareItem = async (item) => {
+        try {          
+            const result = await Share.share({
+              message:
+              `Check this awesome movie:\nhttps://image.tmdb.org/t/p/w185${item.poster_path}`
+            })
+          } catch (error) {
+            alert(error.message);
+          }
+          try {
+            const result = await Share.share({
+              message:
+              `Check this awesome movie:\nhttps://image.tmdb.org/t/p/w185${data.item.poster_path}`
+            })
+          } catch (error) {
+            alert(error.message);
+          }
+        
         
     }
 
@@ -155,6 +166,8 @@ const Home = () => {
             console.log(dataStorage,'run')
           }
       },[update])
+
+
 
     return (
         <ScrollView >
