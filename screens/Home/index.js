@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {Text, View, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions, TextInput, ImageBackground,Share} from 'react-native'
 import Carousel from 'react-native-anchor-carousel'
-import {Ionicons , Feather, MaterialIcons,Fontisto } from '@expo/vector-icons'
+import {Ionicons , Feather, MaterialIcons,Fontisto,FontAwesome } from '@expo/vector-icons'
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -49,8 +49,8 @@ const Home = () => {
             </TouchableOpacity>
             <View style={{width:Dimensions.get('window').width /2,height: Dimensions.get('window').width /3,marginTop: 16}}>
                 <Text style={styles.name}>{item.original_title}</Text>
-                <Text style={styles.stat}>{item.release_date}</Text>
-                <Text style={styles.stat}>{item.vote_average}</Text>
+                <Text style={styles.stat1}><FontAwesome name="calendar" size={20} color="white" /> Released     {item.release_date}</Text>
+                <Text style={styles.stat}><FontAwesome name="star" style={styles.statIcon} size={20} color="yellow" /> Imdb Rating              {item.vote_average}</Text>
                 
             </View>
         </View>
@@ -60,9 +60,6 @@ const Home = () => {
 
     const renderFavItem = ({item, index}) => {
         var item1 = JSON.parse(item[1])
-        // console.log('====================')
-        // console.log(item1.item)
-        // console.log('====================')
         return(
             <View>
                 <TouchableOpacity>
@@ -70,10 +67,10 @@ const Home = () => {
                     <TouchableOpacity style={styles.carouselIcon} onPress={() => shareItem(item)}><Fontisto name="share-a" size={24} color="white" /></TouchableOpacity>
                     <TouchableOpacity style={styles.carouselIconShare} onPress={() => removeFav(item)}><Ionicons name="ios-remove-circle" size={30} color="white" /></TouchableOpacity>
                 </TouchableOpacity>
-                <View style={{width:Dimensions.get('window').width - 14, justifyContent: 'space-between',marginTop: 16}}>
+                <View style={{width:Dimensions.get('window').width /2,height: Dimensions.get('window').width /3,marginTop: 16}}>
                     <Text style={styles.name}>{item1.item.original_title}</Text>
-                    <Text style={styles.stat}>{item1.item.release_date}</Text>
-                    <Text style={styles.stat}>{item1.item.vote_average}</Text>
+                    <Text style={styles.stat}><FontAwesome name="calendar" size={20} color="white" /> Released     {item1.item.release_date}</Text>
+                    <Text style={styles.stat}><FontAwesome name="star" style={styles.statIcon} size={20} color="yellow" /> Imdb Rating              {item1.item.vote_average}</Text>
                     
                 </View>
             </View>
@@ -110,7 +107,7 @@ const Home = () => {
               `Check this awesome movie:\nhttps://image.tmdb.org/t/p/w185${data.item.poster_path}`
             })
           } catch (error) {
-            alert(error.message);
+            // alert(error.message);
           }
         
         
@@ -310,12 +307,24 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     stat: {
-        paddingLeft: 12,
+        paddingLeft: 6,
         color: 'white',
         fontWeight: 'bold',
         fontSize: 14, 
-        opacity: 0.8
+        opacity: 0.8,
     },
+    stat1: {
+        paddingLeft: 6,
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 14, 
+        opacity: 0.8,
+        marginBottom: 10
+    },
+    statIcon: {
+        marginRight:20,
+        position: 'absolute',
+    }
 })
 
 export default Home;
