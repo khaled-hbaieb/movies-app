@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     searchBox: {
         backgroundColor: '#fff',
         elevation: 10,
-        borderRadius: 4,
+        borderRadius: 125,
         marginTop: 60,
         marginBottom: 20,
         width: (Dimensions.get('window').width) *6/7,
