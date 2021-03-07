@@ -88,7 +88,6 @@ const Home = () => {
           }
           try {
               let data = JSON.parse(item[1])
-              console.log(data,'faaaaaaaaaav')
             const result = await Share.share({
               message:
               `Check this awesome movie:\n${data.item.original_title}\nhttps://image.tmdb.org/t/p/w185${data.item.poster_path}`
@@ -142,7 +141,6 @@ const Home = () => {
       useEffect(() => {
           return () => {
             getAllItems()
-            console.log(dataStorage,'run')
           }
       },[update])
 
