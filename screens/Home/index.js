@@ -6,17 +6,7 @@ import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-
-
-
-
-
-
-
 const {width, height} = Dimensions.get('window')
-
-
-
 
 const Home = () => {
     const [background, setBackground] = useState(
@@ -34,8 +24,8 @@ const Home = () => {
       
 
 
-      const renderItem = ({item, index}) => {
-    return(
+    const renderItem = ({item, index}) => {
+        return(
         <View>
             <TouchableOpacity onPress={() => {
                 carouselRef.current.scrollToIndex(index)
@@ -77,15 +67,12 @@ const Home = () => {
         )
     }
     const addToFav = async (item) => {
-        // console.log(typeof(JSON.stringify(item.original_title)))
         try {
-            // await AsyncStorage.setItem(`${item.original_title}`, {item})
             await AsyncStorage.setItem(JSON.stringify(item.original_title), JSON.stringify({item}))
             setUpdate(!update)
           } catch (e) {
             console.log('addToFav',e)
-          }
-          
+          }  
     }
 
     
@@ -94,7 +81,7 @@ const Home = () => {
         try {          
             const result = await Share.share({
               message:
-              `Check this awesome movie:\nhttps://image.tmdb.org/t/p/w185${item.poster_path}`
+              `Check this awesome movie:\n${item.original_title}\nhttps://image.tmdb.org/t/p/w185${item.poster_path}`
             })
           } catch (error) {
             // alert(error.message);
@@ -104,7 +91,7 @@ const Home = () => {
               console.log(data,'faaaaaaaaaav')
             const result = await Share.share({
               message:
-              `Check this awesome movie:\nhttps://image.tmdb.org/t/p/w185${data.item.poster_path}`
+              `Check this awesome movie:\n${data.item.original_title}\nhttps://image.tmdb.org/t/p/w185${data.item.poster_path}`
             })
           } catch (error) {
             // alert(error.message);
@@ -114,7 +101,6 @@ const Home = () => {
     }
 
     const removeFav = async (key) => {
-        console.log(key[0])
         try {
             await AsyncStorage.removeItem(key[0]);
             setUpdate(!update)
@@ -127,14 +113,11 @@ const Home = () => {
     const handleSearch = text => {
         
         setText(text)
-        // console.log(text)
         axios.get(`https://api.themoviedb.org/3/search/movie?query=${text}&api_key=d684550d631cad69733c812672083206`)
         .then(result => {
-            // console.log(result.data.results,'resuuuuuuuuuuuults')
             setMovieSearch(result.data.results)
         })
         .catch(err => console.log(err))
-        // setShowSearch(true)
         if(text.length === 0) {
             setMovieSearch('')
         }
@@ -144,7 +127,6 @@ const Home = () => {
         AsyncStorage.getAllKeys()
     .then((keys)=> AsyncStorage.multiGet(keys)
                     .then((data) => {
-                        // console.log(data,'data here')
                         setDataStorage(data)
                     }));
     }
@@ -154,9 +136,7 @@ const Home = () => {
         .then(result => {
             setPopularMoviesList(result.data.results)
         })
-        getAllItems()
-        console.log('effect1 tekhdem', dataStorage)
-        
+        getAllItems()        
       },[]);
 
       useEffect(() => {
@@ -165,7 +145,6 @@ const Home = () => {
             console.log(dataStorage,'run')
           }
       },[update])
-
 
 
     return (
@@ -214,7 +193,6 @@ const Home = () => {
                 inactiveOpacity={0.4}
                 />}
                 </View>
-                
                 </ImageBackground>
             </View>
             </View>
@@ -229,7 +207,6 @@ const styles = StyleSheet.create({
         height : Dimensions.get('window').height * 3/2.2,
         paddingHorizontal: 14,
         marginTop: 50,
-        // width: '100%'
     },
     searchBox: {
         backgroundColor: '#fff',
@@ -256,18 +233,14 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: '700',
         marginLeft: 30,
-        // marginBottom: 10
     },
     background: {
         flex: 1,
         resizeMode: "cover",
-        // justifyContent: "center"
     },
     carousel : {
         flex: 1,
         overflow: "visible",
-        // marginTop: 250,
-        // backgroundColor: "white",
     },
     carouselImage : {
         width: 200,
